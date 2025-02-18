@@ -30,4 +30,4 @@ Para rodar este projeto localmente, siga os passos abaixo:
 1. **Clone o repositório:**
 
    ```bash
-   git clone https://github.com/seu-usuario/nome-do-repositorio.git
+   git clone [https://github.com/seu-usuario/nome-do-repositorio.git](https://github.com/douglasmmdev/futebol-amador/blob/main/001.html)
