@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Futebol Amador</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2>Registro de Jogos</h2>
+        <form id="game-form">
+            <!-- Campos para inserir informações sobre o jogo -->
+            <input type="datetime-local" id="game-date" required>
+            <input type="text" id="game-location" placeholder="Local do jogo" required>
+            <select id="game-type">
+                <option value="amistoso">Amistoso</option>
+                <option value="campeonato">Campeonato</option>
+            </select>
+            <input type="number" id="goals" placeholder="Gols" min="0">
+            <input type="number" id="assists" placeholder="Assistências" min="0">
+            <input type="number" id="yellow-cards" placeholder="Cartões Amarelos" min="0">
+            <button type="submit">Registrar Jogo</button>
+        </form>
+        
+        <!-- Botão para baixar os dados em formato Bloco de Notas -->
+        <button id="download-txt">Baixar Dados em Bloco de Notas</button>
+        <ul id="game-list"></ul>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
+
+<!-- styles.css -->
+<style>
+body {
+    background-color: #1a1a2e;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+.dashboard-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background: #16213e;
+    border-radius: 10px;
+    text-align: center;
+}
+input, button, select {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}
+button {
+    background-color: #e94560;
+    color: white;
+    cursor: pointer;
+}
+</style>
+
+<!-- app.js -->
+<script>
+// Função para salvar os dados na nuvem (simulação)
+function saveToCloud(data) {
+    localStorage.setItem("gameData", JSON.stringify(data));
+}
+
+// Evento para capturar os dados do formulário e salvar
+const gameData = [];
+document.getElementById("game-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+    
+    // Captura os valores dos inputs
+    const date = document.getElementById("game-date").value;
+    const location = document.getElementById("game-location").value;
+    const type = document.getElementById("game-type").value;
+    const goals = parseInt(document.getElementById("goals").value) || 0;
+    const assists = parseInt(document.getElementById("assists").value) || 0;
+    const yellowCards = parseInt(document.getElementById("yellow-cards").value) || 0;
+    
+    // Calcula a pontuação do jogador
+    const points = (goals * 4) + (assists * 2) - (yellowCards * 1);
+    let evaluation = "Jogou Mal";
+    if (points > 5) evaluation = "Jogou Bem";
+    else if (points === 4) evaluation = "Razoável";
+    
+    // Adiciona os dados ao array
+    const gameEntry = { date, location, type, goals, assists, yellowCards, points, evaluation };
+    gameData.push(gameEntry);
+    saveToCloud(gameData);
+    
+    // Exibe os dados na lista
+    const gameList = document.getElementById("game-list");
+    const listItem = document.createElement("li");
+    listItem.textContent = `${date} - ${location} (${type}): ${goals}G, ${assists}A, ${yellowCards}C - ${evaluation}`;
+    gameList.appendChild(listItem);
+});
+
+// Função para baixar os dados em formato TXT
+function downloadTxt() {
+    let txtContent = "Data | Local | Tipo | Gols | Assistências | Cartões | Pontos | Avaliação\n";
+    gameData.forEach(game => {
+        txtContent += `${game.date} | ${game.location} | ${game.type} | ${game.goals} | ${game.assists} | ${game.yellowCards} | ${game.points} | ${game.evaluation}\n`;
+    });
+    
+    // Criação de um arquivo para download
+    const blob = new Blob([txtContent], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "dados_jogos.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+document.getElementById("download-txt").addEventListener("click", downloadTxt);
+</script>
